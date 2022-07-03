@@ -1,0 +1,87 @@
+﻿@page "/login"
+@using System.Net.Http.Headers
+@layout EmptyLayout
+
+
+<div class="container-fluid h-100">
+    <div class="row justify-content-center align-items-center h-100">
+
+        <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
+
+            <EditForm Model="@userLoginRequest" OnValidSubmit="LoginProcess">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <input @bind-value="userLoginRequest.Email" class="form-control form-control-lg" type="text" placeholder="E-Mail Address" />
+                </div>
+
+                <div class="form-group">
+                    <input @bind-value="userLoginRequest.Password" class="form-control form-control-lg" type="password" placeholder="Password" />
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-info btn-block">Login</button>
+                </div>
+
+            </EditForm>
+
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+    [Inject]
+    HttpClient Client { get; set; }
+
+    [Inject]
+    ModalManager ModalManager { get; set; }
+
+    [Inject]
+    NavigationManager NavManeger { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    AuthenticationStateProvider? AuthenticationStateProvider { get; set; }
+
+    private UserLoginRequestDto userLoginRequest = new UserLoginRequestDto();
+
+
+    private async Task LoginProcess()
+    {
+        var httpReqRes = await Client.PostAsJsonAsync("api/User/Login", userLoginRequest);
+
+        if (httpReqRes.IsSuccessStatusCode)
+        {
+            try
+            {
+                var res = await httpReqRes.Content.ReadFromJsonAsync<ServiceResponse<UserLoginResponseDto>>();
+
+                if (res.Success)
+                {
+                    await localStorageService.SetItemAsync("token", res.Value.ApiToken);
+                    await localStorageService.SetItemAsync("email", res.Value.User.EmailAddress);
+                    await localStorageService.SetItemAsync("UserId", res.Value.User.Id.ToString());
+                    await localStorageService.SetItemAsync("UserFullName", res.Value.User.FullName);
+
+                    (AuthenticationStateProvider as AuthStateProvider)?.NotifyUserLogin(res.Value.User.EmailAddress);
+
+                    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", res.Value.ApiToken);
+
+                    NavManeger.NavigateTo("/");
+                }
+                else
+                {
+                    await ModalManager.ShowMessageAsync("Login Error", res.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                await ModalManager.ShowMessageAsync("Login Error", ex.Message);
+            }
+        }
+    }
+}
