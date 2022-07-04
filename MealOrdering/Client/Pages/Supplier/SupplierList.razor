@@ -30,13 +30,15 @@
 
         @foreach (var supplier in SupplierList)
         {
-            String spanClass = "badge badge-pill badge-" + (supplier.IsActive ? "success" : "danger");
+            string spanClass = "badge bg-" + (supplier.IsActive ? "success" : "danger");
+
             <tr>
                 <td>@supplier.Id</td>
                 <td>@supplier.Name</td>
                 <td>@supplier.CreateDate.ToCustomDateTimeString()</td>
-                <td> <span class="@spanClass"> @(supplier.IsActive ? "Active" : "Passive")</span></td>
-
+                <td>
+                    <span class="@spanClass"> @(supplier.IsActive ? "Active" : "Passive")</span>
+                </td>
                 <td>
                     <div class="btn-toolbar">
 
