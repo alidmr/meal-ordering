@@ -18,6 +18,8 @@
     {
         await localStorageService.RemoveItemAsync("token");
         await localStorageService.RemoveItemAsync("email");
+        await localStorageService.RemoveItemAsync("UserId");
+        await localStorageService.RemoveItemAsync("UserFullName");
 
         (AuthenticationStateProvider as AuthStateProvider).NotifyUserLogout();
 

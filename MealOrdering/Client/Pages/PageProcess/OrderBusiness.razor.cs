@@ -27,27 +27,27 @@ namespace MealOrdering.Client.Pages.PageProcess
         [Inject]
         ModalManager ModalManager { get; set; }
 
-        public OrderListFilterModel filterModel = new OrderListFilterModel() { CreateDateFirst = DateTime.Now.Date, CreateDateLast = DateTime.Now.Date };
+        public OrderListFilterModel FilterModel = new OrderListFilterModel();
 
         protected List<OrderDto> OrderList;
 
-        internal bool loading;
+        internal bool Loading;
 
         protected override async Task OnInitializedAsync()
         {
             await ReLoadList();
         }
 
-        protected String GetRemaningDateStr(DateTime ExpireDate)
+        protected String GetRemaningDateStr(DateTime expireDate)
         {
-            TimeSpan ts = ExpireDate.Subtract(DateTime.Now);
+            TimeSpan ts = expireDate.Subtract(DateTime.Now);
 
             return ts.TotalSeconds >= 0 ? $"{ts.Hours}:{ts.Minutes}:{ts.Seconds}" : "00:00:00";
         }
 
-        public void GoDetails(Guid SelectedOrderId)
+        public void GoDetails(Guid selectedOrderId)
         {
-            NavigationManager.NavigateTo("/orders-items/" + SelectedOrderId.ToString());
+            NavigationManager.NavigateTo("/orders-items/" + selectedOrderId.ToString());
         }
 
 
@@ -56,18 +56,18 @@ namespace MealOrdering.Client.Pages.PageProcess
             NavigationManager.NavigateTo("/orders/add");
         }
 
-        public void GoEditOrder(Guid OrderId)
+        public void GoEditOrder(Guid orderId)
         {
-            NavigationManager.NavigateTo("/orders/edit/" + OrderId.ToString());
+            NavigationManager.NavigateTo("/orders/edit/" + orderId.ToString());
         }
 
         public async Task ReLoadList()
         {
-            loading = true;
+            Loading = true;
 
             try
             {
-                OrderList = await Http.PostGetServiceResponseAsync<List<OrderDto>, OrderListFilterModel>("api/Order/OrdersByFilter", filterModel, true);
+                OrderList = await Http.PostGetServiceResponseAsync<List<OrderDto>, OrderListFilterModel>("api/Order/OrdersByFilter", FilterModel, true);
             }
             catch (ApiException ex)
             {
@@ -75,17 +75,17 @@ namespace MealOrdering.Client.Pages.PageProcess
             }
             finally
             {
-                loading = false;
+                Loading = false;
             }
         }
 
-        public bool IsExpired(DateTime ExpireDate)
+        public bool IsExpired(DateTime expireDate)
         {
-            TimeSpan ts = ExpireDate.Subtract(DateTime.Now);
+            TimeSpan ts = expireDate.Subtract(DateTime.Now);
             return ts.TotalSeconds < 0;
         }
 
-        public async Task DeleteOrder(Guid OrderId)
+        public async Task DeleteOrder(Guid orderId)
         {
             try
             {
@@ -93,9 +93,9 @@ namespace MealOrdering.Client.Pages.PageProcess
                 if (!modalRes)
                     return;
 
-                var res = await Http.GetServiceResponseAsync<BaseResponse>("api/Order/DeleteOrder/" + OrderId, true);
+                var res = await Http.GetServiceResponseAsync<BaseResponse>("api/Order/DeleteOrder/" + orderId, true);
 
-                OrderList.RemoveAll(i => i.Id == OrderId);
+                OrderList.RemoveAll(i => i.Id == orderId);
             }
             catch (ApiException ex)
             {
@@ -103,9 +103,9 @@ namespace MealOrdering.Client.Pages.PageProcess
             }
         }
 
-        public bool IsMyOrder(Guid CreatedUserId)
+        public bool IsMyOrder(Guid createdUserId)
         {
-            return LocalStorageSync.GetUserIdSync() == CreatedUserId;
+            return LocalStorageSync.GetUserIdSync() == createdUserId;
         }
     }
 }

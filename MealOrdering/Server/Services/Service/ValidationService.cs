@@ -12,21 +12,23 @@ namespace MealOrdering.Server.Services.Service
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public bool HasPermission(Guid UserId)
+        public bool HasPermission(Guid userId)
         {
-            return IsAdmin(UserId) || HasPermissionToChange(UserId);
+            var item = IsAdmin(userId) && HasPermissionToChange(userId);
+            return item;
         }
 
-        public bool HasPermissionToChange(Guid UserId)
+        public bool HasPermissionToChange(Guid userId)
         {
-            String userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.UserData).Value;
+            String item = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.UserData).Value;
 
-            return Guid.TryParse(userId, out Guid result) ? result == UserId : false;
+            return Guid.TryParse(item, out Guid result) ? result == userId : false;
         }
 
-        public bool IsAdmin(Guid UserId)
+        public bool IsAdmin(Guid userId)
         {
-            return _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value == "alidemirytu@gmail.com";
+            var item = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value == "alidemirytu@gmail.com";
+            return item;
         }
     }
 }

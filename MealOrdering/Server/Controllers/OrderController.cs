@@ -34,20 +34,20 @@ namespace MealOrdering.Server.Controllers
         }
 
         [HttpGet("OrdersByDate")]
-        public async Task<ServiceResponse<List<OrderDto>>> GetOrder(DateTime OrderDate)
+        public async Task<ServiceResponse<List<OrderDto>>> GetOrder(DateTime orderDate)
         {
             return new ServiceResponse<List<OrderDto>>()
             {
-                Value = await _orderService.GetOrders(OrderDate)
+                Value = await _orderService.GetOrders(orderDate)
             };
         }
 
         [HttpPost("OrdersByFilter")]
-        public async Task<ServiceResponse<List<OrderDto>>> GetOrdersByFilter([FromBody] OrderListFilterModel Filter)
+        public async Task<ServiceResponse<List<OrderDto>>> GetOrdersByFilter([FromBody] OrderListFilterModel filter)
         {
             return new ServiceResponse<List<OrderDto>>()
             {
-                Value = await _orderService.GetOrdersByFilter(Filter)
+                Value = await _orderService.GetOrdersByFilter(filter)
             };
         }
 
@@ -61,34 +61,34 @@ namespace MealOrdering.Server.Controllers
         }
 
         [HttpPost("CreateOrder")]
-        public async Task<ServiceResponse<OrderDto>> CreateOrder(OrderDto Order)
+        public async Task<ServiceResponse<OrderDto>> CreateOrder(OrderDto order)
         {
             return new ServiceResponse<OrderDto>()
             {
-                Value = await _orderService.CreateOrder(Order)
+                Value = await _orderService.CreateOrder(order)
             };
         }
 
         [HttpPost("UpdateOrder")]
-        public async Task<ServiceResponse<OrderDto>> UpdateOrder(OrderDto Order)
+        public async Task<ServiceResponse<OrderDto>> UpdateOrder(OrderDto order)
         {
             return new ServiceResponse<OrderDto>()
             {
-                Value = await _orderService.UpdateOrder(Order)
+                Value = await _orderService.UpdateOrder(order)
             };
         }
 
         [HttpPost("DeleteOrder")]
-        public async Task<BaseResponse> DeleteOrder([FromBody] Guid OrderId)
+        public async Task<BaseResponse> DeleteOrder([FromBody] Guid orderId)
         {
-            await _orderService.DeleteOrder(OrderId);
+            await _orderService.DeleteOrder(orderId);
             return new BaseResponse();
         }
 
-        [HttpGet("DeleteOrder/{OrderId}")]
-        public async Task<BaseResponse> DeleteOrderFromQueryString(Guid OrderId)
+        [HttpGet("DeleteOrder/{orderId}")]
+        public async Task<BaseResponse> DeleteOrderFromQueryString(Guid orderId)
         {
-            await _orderService.DeleteOrder(OrderId);
+            await _orderService.DeleteOrder(orderId);
             return new BaseResponse();
         }
 
@@ -98,12 +98,12 @@ namespace MealOrdering.Server.Controllers
 
         #region Get
 
-        [HttpGet("OrderItemsById/{Id}")]
-        public async Task<ServiceResponse<OrderItemDto>> GetOrderItemsById(Guid Id)
+        [HttpGet("OrderItemsById/{id}")]
+        public async Task<ServiceResponse<OrderItemDto>> GetOrderItemsById(Guid id)
         {
             return new ServiceResponse<OrderItemDto>()
             {
-                Value = await _orderService.GetOrderItemsById(Id)
+                Value = await _orderService.GetOrderItemsById(id)
             };
         }
 

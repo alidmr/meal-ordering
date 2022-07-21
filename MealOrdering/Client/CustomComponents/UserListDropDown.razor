@@ -36,7 +36,7 @@ else
     public EventCallback<Guid> ValueChanged { get; set; }
 
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         var httpRes = await Http.GetFromJsonAsync<ServiceResponse<List<UserDto>>>("api/User/Users");
 

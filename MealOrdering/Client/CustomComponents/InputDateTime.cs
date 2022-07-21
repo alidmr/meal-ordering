@@ -7,8 +7,8 @@ namespace MealOrdering.Client.CustomComponents
 {
     public class InputDateTime<TValue> : InputDate<TValue>
     {
-        private CultureInfo cultureInfo = CultureInfo.GetCultureInfo("tr-TR");
-        private static CultureInfo cultureInfoStatic = CultureInfo.GetCultureInfo("tr-TR");
+        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("tr-TR");
+        private static CultureInfo _cultureInfoStatic = CultureInfo.GetCultureInfo("tr-TR");
 
         private const string DateFormat = "yyyy-MM-ddTHH:mm";
 
@@ -30,9 +30,9 @@ namespace MealOrdering.Client.CustomComponents
             switch (value)
             {
                 case DateTime dateTimeValue:
-                    return BindConverter.FormatValue(dateTimeValue, DateFormat, cultureInfo);
+                    return BindConverter.FormatValue(dateTimeValue, DateFormat, _cultureInfo);
                 case DateTimeOffset dateTimeOffsetValue:
-                    return BindConverter.FormatValue(dateTimeOffsetValue, DateFormat, cultureInfo);
+                    return BindConverter.FormatValue(dateTimeOffsetValue, DateFormat, _cultureInfo);
                 default:
                     return string.Empty; // Handles null for Nullable<DateTime>, etc.
             }
@@ -73,7 +73,7 @@ namespace MealOrdering.Client.CustomComponents
 
         static bool TryParseDateTime(string value, out TValue result)
         {
-            var success = BindConverter.TryConvertToDateTime(value, cultureInfoStatic, DateFormat, out var parsedValue);
+            var success = BindConverter.TryConvertToDateTime(value, _cultureInfoStatic, DateFormat, out var parsedValue);
             if (success)
             {
                 result = (TValue)(object)parsedValue;
@@ -88,7 +88,7 @@ namespace MealOrdering.Client.CustomComponents
 
         static bool TryParseDateTimeOffset(string value, out TValue result)
         {
-            var success = BindConverter.TryConvertToDateTimeOffset(value, cultureInfoStatic, DateFormat, out var parsedValue);
+            var success = BindConverter.TryConvertToDateTimeOffset(value, _cultureInfoStatic, DateFormat, out var parsedValue);
             if (success)
             {
                 result = (TValue)(object)parsedValue;

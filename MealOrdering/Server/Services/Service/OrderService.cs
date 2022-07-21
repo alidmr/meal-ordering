@@ -27,18 +27,18 @@ namespace MealOrdering.Server.Services.Service
 
         #region Get
 
-        public async Task<List<OrderDto>> GetOrdersByFilter(OrderListFilterModel Filter)
+        public async Task<List<OrderDto>> GetOrdersByFilter(OrderListFilterModel filter)
         {
             var query = _context.Orders.Include(i => i.Supplier).AsQueryable();
 
-            if (Filter.CreatedUserId != Guid.Empty)
-                query = query.Where(i => i.CreateUserId == Filter.CreatedUserId);
+            if (filter.CreatedUserId != Guid.Empty)
+                query = query.Where(i => i.CreateUserId == filter.CreatedUserId);
 
-            if (Filter.CreateDateFirst.HasValue)
-                query = query.Where(i => i.CreateDate >= Filter.CreateDateFirst);
+            if (filter.CreateDateFirst.HasValue)
+                query = query.Where(i => i.CreateDate >= filter.CreateDateFirst);
 
-            if (Filter.CreateDateLast > DateTime.MinValue)
-                query = query.Where(i => i.CreateDate <= Filter.CreateDateLast);
+            if (filter.CreateDateLast.HasValue && filter.CreateDateLast > DateTime.MinValue)
+                query = query.Where(i => i.CreateDate <= filter.CreateDateLast);
 
 
             var list = await query
@@ -50,10 +50,10 @@ namespace MealOrdering.Server.Services.Service
         }
 
 
-        public async Task<List<OrderDto>> GetOrders(DateTime OrderDate)
+        public async Task<List<OrderDto>> GetOrders(DateTime orderDate)
         {
             var list = await _context.Orders.Include(i => i.Supplier)
-                      .Where(i => i.CreateDate.Date == OrderDate.Date)
+                      .Where(i => i.CreateDate.Date == orderDate.Date)
                       .ProjectTo<OrderDto>(_mapper.ConfigurationProvider)
                       .OrderBy(i => i.CreateDate)
                       .ToListAsync();
@@ -63,9 +63,9 @@ namespace MealOrdering.Server.Services.Service
 
 
 
-        public async Task<OrderDto> GetOrderById(Guid Id)
+        public async Task<OrderDto> GetOrderById(Guid id)
         {
-            return await _context.Orders.Where(i => i.Id == Id)
+            return await _context.Orders.Where(i => i.Id == id)
                       .ProjectTo<OrderDto>(_mapper.ConfigurationProvider)
                       .FirstOrDefaultAsync();
         }
@@ -74,40 +74,42 @@ namespace MealOrdering.Server.Services.Service
 
         #region Post
 
-        public async Task<OrderDto> CreateOrder(OrderDto Order)
+        public async Task<OrderDto> CreateOrder(OrderDto order)
         {
-            var dbOrder = _mapper.Map<Data.Models.Order>(Order);
+            var dbOrder = _mapper.Map<Data.Models.Order>(order);
+            dbOrder.CreateDate = DateTime.Now;
+
             await _context.AddAsync(dbOrder);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<OrderDto>(dbOrder);
         }
 
-        public async Task<OrderDto> UpdateOrder(OrderDto Order)
+        public async Task<OrderDto> UpdateOrder(OrderDto order)
         {
-            var dbOrder = await _context.Orders.FirstOrDefaultAsync(i => i.Id == Order.Id);
+            var dbOrder = await _context.Orders.FirstOrDefaultAsync(i => i.Id == order.Id);
             if (dbOrder == null)
                 throw new Exception("Order not found");
 
-
-            if (!_validationService.HasPermission(dbOrder.CreateUserId))
+            var permission = _validationService.HasPermission(dbOrder.CreateUserId);
+            if (!permission)
                 throw new Exception("You cannot change the order unless you created");
 
-            _mapper.Map(Order, dbOrder);
+            _mapper.Map(order, dbOrder);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<OrderDto>(dbOrder);
         }
 
-        public async Task DeleteOrder(Guid OrderId)
+        public async Task DeleteOrder(Guid orderId)
         {
-            var detailCount = await _context.OrderItems.Where(i => i.OrderId == OrderId).CountAsync();
+            var detailCount = await _context.OrderItems.Where(i => i.OrderId == orderId).CountAsync();
 
 
             if (detailCount > 0)
                 throw new Exception($"There are {detailCount} sub items for the order you are trying to delete");
 
-            var order = await _context.Orders.FirstOrDefaultAsync(i => i.Id == OrderId);
+            var order = await _context.Orders.FirstOrDefaultAsync(i => i.Id == orderId);
             if (order == null)
                 throw new Exception("Order not found");
 
@@ -131,17 +133,17 @@ namespace MealOrdering.Server.Services.Service
 
         #region Get
 
-        public async Task<List<OrderItemDto>> GetOrderItems(Guid OrderId)
+        public async Task<List<OrderItemDto>> GetOrderItems(Guid orderId)
         {
-            return await _context.OrderItems.Where(i => i.OrderId == OrderId)
+            return await _context.OrderItems.Where(i => i.OrderId == orderId)
                       .ProjectTo<OrderItemDto>(_mapper.ConfigurationProvider)
                       .OrderBy(i => i.CreateDate)
                       .ToListAsync();
         }
 
-        public async Task<OrderItemDto> GetOrderItemsById(Guid Id)
+        public async Task<OrderItemDto> GetOrderItemsById(Guid id)
         {
-            return await _context.OrderItems.Include(i => i.Order).Where(i => i.Id == Id)
+            return await _context.OrderItems.Include(i => i.Order).Where(i => i.Id == id)
                       .ProjectTo<OrderItemDto>(_mapper.ConfigurationProvider)
                       .FirstOrDefaultAsync();
         }
@@ -151,10 +153,10 @@ namespace MealOrdering.Server.Services.Service
         #region Post
 
 
-        public async Task<OrderItemDto> CreateOrderItem(OrderItemDto OrderItem)
+        public async Task<OrderItemDto> CreateOrderItem(OrderItemDto orderItem)
         {
             var order = await _context.Orders
-                .Where(i => i.Id == OrderItem.OrderId)
+                .Where(i => i.Id == orderItem.OrderId)
                 .Select(i => i.ExpireDate)
                 .FirstOrDefaultAsync();
 
@@ -165,28 +167,28 @@ namespace MealOrdering.Server.Services.Service
                 throw new Exception("You cannot create sub order. It is expired !!!");
 
 
-            var dbOrder = _mapper.Map<Data.Models.OrderItem>(OrderItem);
+            var dbOrder = _mapper.Map<Data.Models.OrderItem>(orderItem);
             await _context.AddAsync(dbOrder);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<OrderItemDto>(dbOrder);
         }
 
-        public async Task<OrderItemDto> UpdateOrderItem(OrderItemDto OrderItem)
+        public async Task<OrderItemDto> UpdateOrderItem(OrderItemDto orderItem)
         {
-            var dbOrder = await _context.OrderItems.FirstOrDefaultAsync(i => i.Id == OrderItem.Id);
+            var dbOrder = await _context.OrderItems.FirstOrDefaultAsync(i => i.Id == orderItem.Id);
             if (dbOrder == null)
                 throw new Exception("Order not found");
 
-            _mapper.Map(OrderItem, dbOrder);
+            _mapper.Map(orderItem, dbOrder);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<OrderItemDto>(dbOrder);
         }
 
-        public async Task DeleteOrderItem(Guid OrderItemId)
+        public async Task DeleteOrderItem(Guid orderItemId)
         {
-            var orderItem = await _context.OrderItems.FirstOrDefaultAsync(i => i.Id == OrderItemId);
+            var orderItem = await _context.OrderItems.FirstOrDefaultAsync(i => i.Id == orderItemId);
             if (orderItem == null)
                 throw new Exception("Sub order not found");
 

@@ -5,28 +5,28 @@ namespace MealOrdering.Server.Services.Infrastructure
 {
     public interface IOrderService
     {
-        public Task<OrderDto> CreateOrder(OrderDto Order);
+        public Task<OrderDto> CreateOrder(OrderDto order);
 
-        public Task<OrderDto> UpdateOrder(OrderDto Order);
+        public Task<OrderDto> UpdateOrder(OrderDto order);
 
-        public Task DeleteOrder(Guid OrderId);
+        public Task DeleteOrder(Guid orderId);
 
-        public Task<List<OrderDto>> GetOrders(DateTime OrderDate);
+        public Task<List<OrderDto>> GetOrders(DateTime orderDate);
 
-        public Task<List<OrderDto>> GetOrdersByFilter(OrderListFilterModel Filter);
+        public Task<List<OrderDto>> GetOrdersByFilter(OrderListFilterModel filter);
 
-        public Task<OrderDto> GetOrderById(Guid Id);
+        public Task<OrderDto> GetOrderById(Guid id);
 
 
 
-        public Task<OrderItemDto> CreateOrderItem(OrderItemDto OrderItem);
+        public Task<OrderItemDto> CreateOrderItem(OrderItemDto orderItem);
 
-        public Task<OrderItemDto> UpdateOrderItem(OrderItemDto OrderItem);
+        public Task<OrderItemDto> UpdateOrderItem(OrderItemDto orderItem);
 
-        public Task<List<OrderItemDto>> GetOrderItems(Guid OrderId);
+        public Task<List<OrderItemDto>> GetOrderItems(Guid orderId);
 
-        public Task<OrderItemDto> GetOrderItemsById(Guid Id);
+        public Task<OrderItemDto> GetOrderItemsById(Guid id);
 
-        public Task DeleteOrderItem(Guid OrderItemId);
+        public Task DeleteOrderItem(Guid orderItemId);
     }
 }

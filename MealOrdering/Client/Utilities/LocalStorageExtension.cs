@@ -5,28 +5,40 @@ namespace MealOrdering.Client.Utilities
     public static class LocalStorageExtension
     {
 
-        public static async Task<Guid> GetUserId(this ILocalStorageService LocalStorage)
+        public static async Task<Guid> GetUserId(this ILocalStorageService localStorage)
         {
-            String userGuid = await LocalStorage.GetItemAsStringAsync("UserId");
+            //String userGuid = await localStorage.GetItemAsStringAsync("UserId");
 
-            return Guid.TryParse(userGuid, out Guid UserId) ? UserId : Guid.Empty;
+            var item = await localStorage.GetItemAsync<string>("UserId");
+
+            return Guid.TryParse(item, out Guid userId) ? userId : Guid.Empty;
         }
 
-        public static Guid GetUserIdSync(this ISyncLocalStorageService LocalStorage)
+        public static Guid GetUserIdSync(this ISyncLocalStorageService localStorage)
         {
-            String userGuid = LocalStorage.GetItemAsString("UserId");
+            //string userGuid = localStorage.GetItemAsString("UserId");
 
-            return Guid.TryParse(userGuid, out Guid UserId) ? UserId : Guid.Empty;
+            var item = localStorage.GetItem<string>("UserId");
+
+            return Guid.TryParse(item, out Guid userId) ? userId : Guid.Empty;
         }
 
-        public static async Task<String> GetUserEMail(this ILocalStorageService LocalStorage)
+        public static async Task<String> GetUserEMail(this ILocalStorageService localStorage)
         {
-            return await LocalStorage.GetItemAsStringAsync("email");
+            var item = await localStorage.GetItemAsync<string>("email");
+
+            //var item = await localStorage.GetItemAsStringAsync("email");
+
+            return item;
         }
 
-        public static async Task<String> GetUserFullName(this ILocalStorageService LocalStorage)
+        public static async Task<String> GetUserFullName(this ILocalStorageService localStorage)
         {
-            return await LocalStorage.GetItemAsStringAsync("UserFullName");
+            var item = await localStorage.GetItemAsync<string>("UserFullName");
+
+            //var item = await localStorage.GetItemAsStringAsync("UserFullName");
+
+            return item;
         }
     }
 }

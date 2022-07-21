@@ -10,7 +10,7 @@
     <main>
         <div class="top-row px-4">
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">
-                @LoginStr
+                @_loginStr
             </a>
         </div>
 
@@ -31,7 +31,7 @@
     [Inject]
     NavigationManager navigationManager { get; set; }
 
-    private string LoginStr = "About";
+    private string _loginStr = "About";
 
     protected override async Task OnInitializedAsync()
     {
@@ -40,12 +40,15 @@
         {
             //authState.User.Claims.FirstOrDefault(x => x.ValueType == ClaimTypes.Email);
 
-            LoginStr = await localStorageService.GetItemAsStringAsync("email");
+            //_loginStr = await localStorageService.GetItemAsStringAsync("email");
+
+            var email = await localStorageService.GetItemAsync<string>("email");
+
+            _loginStr = email;
         }
         else
         {
             navigationManager.NavigateTo("/login");
         }
     }
-
 }
